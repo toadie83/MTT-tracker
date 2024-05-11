@@ -7,6 +7,7 @@ function updateTotal() {
   const totalElement = document.getElementById("total");
   totalElement.textContent = `$${total.toFixed(2)}`;
 }
+
 // Function to handle form submission
 function handleSubmit(event) {
   event.preventDefault();
@@ -72,9 +73,67 @@ function displayEntries() {
   });
 }
 
+// Function to save session data
+function saveSession() {
+  const now = new Date();
+  const sessionReference = now.toLocaleString(); // Get current date and time as a string
+  const sessionData = {
+    entries: entries.slice(), // Copy entries array to avoid modifying the original
+    total: total,
+  };
+  sessionStorage.setItem(sessionReference, JSON.stringify(sessionData));
+
+  // Clear the running total and current entries list
+  total = 0;
+  entries.length = 0;
+  updateTotal();
+  displayEntries();
+
+  // Clear the current entries list
+  const entryList = document.getElementById("entryList");
+  entryList.innerHTML = "";
+
+  // Update the list of session references
+  const sessionList = document.getElementById("sessionList");
+  const sessionItem = document.createElement("li");
+  sessionItem.innerHTML = `<a href="#" class="sessionLink">${sessionReference}</a>`;
+  sessionList.appendChild(sessionItem);
+
+  // Add event listener to the session link
+  sessionItem
+    .querySelector(".sessionLink")
+    .addEventListener("click", function (event) {
+      event.preventDefault();
+      const sessionRef = sessionItem.textContent;
+      const sessionData = JSON.parse(sessionStorage.getItem(sessionRef));
+      displaySession(sessionData);
+    });
+}
+
+// Function to display saved session data in a pop-up
+function displaySession(sessionData) {
+  let sessionInfo = `Session Reference: ${sessionData.entries[0].date}\n\nEntries:\n`;
+
+  // Loop through all entries and add them to sessionInfo
+  sessionData.entries.forEach((entry, index) => {
+    sessionInfo += `${index + 1}. ${entry.date} - ${
+      entry.type
+    }: $${entry.amount.toFixed(2)}\n`;
+  });
+
+  sessionInfo += `\nTotal: $${sessionData.total.toFixed(2)}`;
+
+  // Display session info in a pop-up
+  alert(sessionInfo);
+}
+
 // Event listener for form submission
 const entryForm = document.getElementById("entryForm");
 entryForm.addEventListener("submit", handleSubmit);
+
+// Event listener for saving session
+const saveButton = document.getElementById("saveButton");
+saveButton.addEventListener("click", saveSession);
 
 // Initial display
 updateTotal();
