@@ -61,6 +61,15 @@ button[type="submit"]:hover {
   background-color: #555;
 }
 
+/* Style for delete button */
+.deleteButton {
+  color: red; /* Set text color to red */
+  background-color: transparent; /* Set background color to transparent */
+  border: none; /* Remove button border */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  margin-left: 5px; /* Add margin to the left of the button */
+}
+
 #entryList {
   list-style: none;
   padding: 0;

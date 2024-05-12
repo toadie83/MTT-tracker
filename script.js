@@ -6,6 +6,15 @@ const entries = [];
 function updateTotal() {
   const totalElement = document.getElementById("total");
   totalElement.textContent = `$${total.toFixed(2)}`;
+
+  // Apply different text color based on the total value
+  if (total < 0) {
+    totalElement.style.color = "red";
+  } else if (total === 0) {
+    totalElement.style.color = "black";
+  } else {
+    totalElement.style.color = "green";
+  }
 }
 
 // Function to handle form submission
@@ -57,18 +66,38 @@ function formatDate(date) {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 }
+// Function to delete an entry
+function deleteEntry(index) {
+  // Remove the entry from the entries array
+  const deletedEntry = entries.splice(index, 1)[0];
+
+  // Update the running total
+  total -= deletedEntry.amount;
+
+  // Update the display
+  updateTotal();
+  displayEntries();
+}
 
 // Function to display entries
 function displayEntries() {
   const entryList = document.getElementById("entryList");
   entryList.innerHTML = "";
 
-  entries.forEach((entry) => {
+  entries.forEach((entry, index) => {
     const formattedDate = formatDate(new Date(entry.date));
     const listItem = document.createElement("li");
     listItem.textContent = `${formattedDate} - ${
       entry.type
     }: $${entry.amount.toFixed(2)}`;
+
+    // Add a delete button for each entry
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "X";
+    deleteButton.classList.add("deleteButton"); // Add delete button class
+    deleteButton.addEventListener("click", () => deleteEntry(index));
+    listItem.appendChild(deleteButton);
+
     entryList.appendChild(listItem);
   });
 }
@@ -76,7 +105,9 @@ function displayEntries() {
 // Function to save session data
 function saveSession() {
   const now = new Date();
-  const sessionReference = now.toLocaleString(); // Get current date and time as a string
+  const sessionReference = `${now.toLocaleDateString(
+    "en-GB"
+  )} ${now.toLocaleTimeString("en-GB")}`; // Get current date and time as UK format
   const sessionData = {
     entries: entries.slice(), // Copy entries array to avoid modifying the original
     total: total,
@@ -116,7 +147,7 @@ function displaySession(sessionData) {
 
   // Loop through all entries and add them to sessionInfo
   sessionData.entries.forEach((entry, index) => {
-    sessionInfo += `${index + 1}. ${entry.date} - ${
+    sessionInfo += `${index + 1}. ${formatDate(new Date(entry.date))} - ${
       entry.type
     }: $${entry.amount.toFixed(2)}\n`;
   });
